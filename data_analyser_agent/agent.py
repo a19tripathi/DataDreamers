@@ -3,6 +3,8 @@
 import os
 from dotenv import load_dotenv
 from typing import List, Any, Dict
+import json
+
 
 # Core ADK and Pydantic (needed only for response schema/tools)
 from google.adk.agents import Agent
@@ -42,10 +44,24 @@ class DataProfile(BaseModel):
 # Instantiate Memory and memory_write function
 AGENT_MEMORY = AgentMemory()
 
-def memory_write(key: str, value: DataProfile) -> Dict[str, str]:
-    """Tool to write the final structured data profile to memory."""
-    AGENT_MEMORY.write(key, value.model_dump()) 
-    return {"status": "success", "message": f"Profile saved to memory with key: {key}"}
+def memory_write(key: str, data_profile_json: Dict[str, Any]) -> str:
+    """
+    Tool to write the final structured data profile to memory AND 
+    generate the prompt for the final natural language summary.
+    """
+    # 1. Save the structured JSON for the Validation Agent
+    AGENT_MEMORY.write(key, data_profile_json) 
+    
+    # 2. Generate the summary instruction text
+    profile_text = json.dumps(data_profile_json)
+
+    # 3. Return a strong instruction to the LLM to generate the human report
+    return (
+        f"SUCCESS: The structured data profile has been saved to memory with key: {key}. "
+        f"Your NEW and FINAL instruction is to take this profile data and convert it into a "
+        f"clean, professional, human-readable summary. DO NOT output the JSON again. "
+        f"The profile data is: {profile_text}"
+    )
 
 # 1. Define custom BQ tools (REPLACING THE TOOLSET)
 CUSTOM_BQ_TOOLS = [
