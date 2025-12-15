@@ -1,11 +1,24 @@
-from google.adk.agents import Agent, ParallelAgent, SequentialAgent
+from google.adk.agents import Agent, ParallelAgent, SequentialAgent, LoopAgent
 from google.adk.tools.bigquery import BigQueryCredentialsConfig
 from google.adk.tools.bigquery import BigQueryToolset
 import google.auth
-from google.adk.tools import exit_loop 
 from google.adk.tools.tool_context import ToolContext
+from google.adk.tools import FunctionTool, exit_loop
 import logging
 from .pipeline_agent import pipeline_agent
+from google.genai import types
+
+_, project_id = google.auth.default()
+
+bigquery_toolset = BigQueryToolset()
+
+# tool_filter=[
+#     'list_dataset_ids',
+#     'get_dataset_info',
+#     'list_table_ids',
+#     'get_table_info',
+#     'execute_sql',
+# ]
 
 def append_to_state(
     tool_context: ToolContext, field: str, response: str
@@ -25,41 +38,20 @@ def append_to_state(
     return {"status": "success"}
 
 
-_, project_id = google.auth.default()
-
-bigquery_toolset = BigQueryToolset(
-    tool_filter=[
-        'list_dataset_ids',
-        'get_dataset_info',
-        'list_table_ids',
-        'get_table_info',
-        'execute_sql',
-    ]
-)
-
-
-smart_query_generating_agent = Agent(
-    model='gemini-2.5-flash',
-    name='smart_query_generating_agent',
-    description="Generates a straightforward SQL mapping query.",
-    instruction="""You are a SQL expert. Given a source table and a target schema, write a BigQuery `INSERT ... SELECT` query. Focus on direct, simple column mappings and standard type casting (e.g., `CAST(col AS STRING)`).""",
-    tools=[bigquery_toolset]
-)
-
 data_discovery_agent = Agent(
     # This is the root agent that orchestrates the data integration workflow.
     # It will delegate tasks to other specialized agents.
-    model='gemini-3-pro-preview',
+    model='gemini-2.5-pro',
     name='data_discovery_agent',
     description='Finds a source table in BigQuery that matches a target table DDL and generates a query.',
     instruction=f"""You are the data discovery agent. Your goal is to find the best source table to populate a target table.
-    dataset_id = staging_table_world_bank_data_source
-1.  Your first step is to understand the user's goal. This will be a DDL statement for a target table or a natural language description of the target schema.
-2.  Next, you must ask the user to provide the BigQuery `dataset_id` where you should search for the source table. Do not proceed until you have this information. The project is `{project_id}`.
-3.  Once you have the user's goal and the `dataset_id`, analyze the goal to understand the target schema (column names, data types, and semantic meaning).
-4.  Using the `bigquery_tool`, explore the tables within the provided `dataset_id`. Use `list_table_ids` to discover tables and `get_table_info` to inspect their schemas.
-5.  Based on your analysis, identify the tables that matches the target schema. Consider factors like table names similarity, column names matches, and data type compatibility.
-6.  Present your findings to the user in a clear, human-friendly format. Your response must include:
+    dataset_id = <can be extracted from ddl provided by user>
+1.  **Understand Goal**: First, understand the user's goal from the provided DDL statement for a target table.
+2.  **Analyze Target**: Analyze the DDL to understand the target schema (column names, data types, and semantic meaning).
+3.  **Discover Sources**: Use the `list_table_ids` tool from the `bigquery_tool` to discover all tables within the `dataset_id` extracted from the DDL.
+4.  **Gather Schemas**: For each table discovered in the previous step, you MUST call the `get_table_info` tool to inspect its schema. Wait for ALL `get_table_info` tool calls to complete before proceeding to the next step.
+5.  **Analyze and Select**: After you have gathered the schemas for all source tables, analyze them to identify the best match for the target schema. Consider factors like table name similarity, column name matches, and data type compatibility.
+6.  **Present Findings**: Present your findings to the user in a clear, human-friendly format. Your response must include:
     - The full ID of the source tables you have selected (e.g., `project.dataset.table`).
     - A confidence score for your selection (HIGH, MEDIUM, or LOW). 
     - A detailed, step-by-step reasoning for your choice. Explain how you compared the schemas and why you believe this is the best match. For example: "The source table 'customers' was chosen because its name is similar to the target 'Clients'. Furthermore, it contains columns 'first_name' and 'email' which directly correspond to the target columns 'FirstName' and 'EmailAddress'.
@@ -67,43 +59,62 @@ data_discovery_agent = Agent(
     tools=[bigquery_toolset]
 )
 
-critique_agent = Agent(
+query_generating_loop_agent = Agent(
     model='gemini-2.5-flash',
-    name='critique_agent',
+    name='sql_generator',
+    description="Generates multiple versions of a SQL SELECT query to map a source table to a target schema.",
+    instruction="""You are a SQL expert. Given a source table, a target schema, and feedback from a previous attempt, write two different BigQuery `SELECT` queries to transform the source data to match the target schema. If you receive no feedback, it means the previous queries were good, and you should call `exit_loop` with the best query from the previous turn as the `final_answer`.
+
+1.  **Query 1 (Simple Mapping):** This query should focus on direct, simple column mappings and standard type casting (e.g., `CAST(col AS STRING)`).
+2.  **Query 2 (Efficient/Alternative Mapping):** This query should explore more efficient or alternative ways to achieve the transformation. This could involve using different functions, join strategies (if applicable), or data manipulation techniques that might be more performant or robust.
+
+For each query, provide only the SQL code.
+
+If you received feedback, make sure to incorporate it into your new queries.
+If you did NOT receive any feedback, it implies the critique agent was satisfied and no human feedback was given for revision. In this case, you must call the `exit_loop` tool. The `final_answer` for `exit_loop` should be the best query you generated in the previous turn.""",
+    tools=[bigquery_toolset, exit_loop]
+)
+
+query_critique__loop_agent = Agent(
+    model='gemini-2.5-pro',
+    name='sql_critique',
     description='Executes a sample of a SQL query, validates the output, and provides feedback.',
-    instruction="""You are the SQL Critique Agent, the quality gate for our data transformation pipeline. Your job is to test and validate multiple SQL queries.
-1. You will receive the output from the `smart_query_generating_agent`, which contains three different SQL queries.
-2. For each query, you must perform the following validation steps:
-    a. **Crucial Step:** Add a `LIMIT 10` clause to the query to ensure it runs quickly and cheaply for testing.
-    b. Execute the modified query using the `execute_sql` tool.
-    c. **Analyze the result:**
+    instruction="""You are the SQL Critique Agent, acting as a Lead Data Engineer. Your role is to be the quality gate for our data transformation pipeline. You must perform a thorough peer review of SQL queries, test them, and then seek human approval.
+
+1.  You will receive one or more SQL queries.
+2.  For each query, perform the following validation and analysis:
+    a.  **Query Type Check:** First, ensure the query is a `SELECT` statement. If it is an `INSERT`, `UPDATE`, `DELETE`, or any other DML/DDL, you must reject it and state that you can only validate `SELECT` queries.
+    b.  **Execution and Validation:** If it is a `SELECT` query, you must call the `execute_sql` tool exactly once for that query. This single call will perform a dry run, check syntax, and execute a sample of the query.
+    c.  **Code Quality & Best Practices Review:**
+        - **Clarity and Readability:** Is the query well-formatted and easy to understand? Are aliases used effectively?
+        - **Performance:** Does the query avoid common performance pitfalls? Specifically check for `SELECT *`, inefficient `JOIN` conditions, or `WHERE` clauses on calculated fields.
+        - **Correctness:** Based on the sample output, does the logic appear correct for the transformation goal?
+    d.  **Analysis:** Based on the tool's output and your code review, analyze the query.
         - If the query fails, note the error.
-        - If the query succeeds, briefly describe the structure of the output.
-3. After testing all queries, present a summary report to the user. The report should include each of the original queries, whether it executed successfully, and any errors or a brief description of the sample output.
-4. Conclude by recommending which query seems best and why (e.g., "The defensive query from `query_variant_agent_2` is recommended as it handles potential nulls and casting errors gracefully.").""",
-    tools=[bigquery_toolset , exit_loop, append_to_state],
+        - If it succeeds, briefly describe the structure of the output.
+    e.  **Scoring:**
+        - **Confidence Score (0-100):** How confident are you that this query meets the goal? (100 = perfect).
+        - **Risk Score (0-100):** What is the risk of running this in production? Consider cost, performance, and errors. (0 = no risk).
+
+3.  **Summary Report:** Present a summary report of your findings for all queries. For each query, include the original SQL, execution results, confidence and risk scores, and your detailed reasoning. If you have suggestions for improvement (e.g., "Consider replacing `SELECT *` with explicit column names for better performance and maintainability"), include them in your reasoning.""",
+    tools=[bigquery_toolset],
+    generate_content_config=types.GenerateContentConfig(temperature=0.1),
 )
 
-flow_agent = SequentialAgent(
-    name = "flow_agent",
-    sub_agents= [data_discovery_agent, smart_query_generating_agent,critique_agent,pipeline_agent]
+# STEP 2: Refinement Loop Agent
+query_refinement_loop = LoopAgent(
+    name="query_refinement_loop",
+    # Agent order is crucial: Critique first, then Refine/Exit
+    sub_agents=[
+        query_generating_loop_agent,
+        query_critique__loop_agent,
+    ],
+    max_iterations=5 # Limit loops
 )
 
 
-root_agent = Agent(
-    model='claude-opus-4-5@20251101',
-    name='root_agent',
-    description='A workflow agent that orchestrates schema discovery and query generation.',
-    instruction="""You are a master workflow orchestrator. Your goal is to help a user find a source table, generate mapping queries, and validate them.
-1.  Your first step is to delegate to the `data_discovery_agent`. This agent will interact with the user to get the target schema and the dataset to search in, and will then find a suitable source table.
-2.  The `data_discovery_agent` may ask the user questions. Your job is to facilitate this conversation until it provides its final analysis containing the source and target table information.
-3.  Once you receive the final analysis from the `data_discovery_agent`, it is **mandatory** that you immediately delegate to the `smart_query_generating_agent`. You **must** pass the entire analysis as input to this agent. Do not ask the user for confirmation; proceed directly to this step.
-4.  The `smart_query_generating_agent` will return three SQL query variants.
-5.  Next, delegate to the `critique_agent`. Pass the complete output from the `smart_query_generating_agent` (which includes all three queries) to the `critique_agent` for validation and final recommendations.
-6.  Present the final report from the `critique_agent` to the user.
-7.  After presenting the report, ask the user if they want to proceed with creating the ETL pipeline using the recommended query.
-8.  If the user confirms, delegate to the `pipeline_agent` to create the job. You will need to extract the recommended SQL query and the target table from the conversation history and pass them to the `create_etl_job` tool.
-9.  replace project,dataset(project.dataset) values in target table with actual values in the query while creating etl job
-""",
-    sub_agents=[flow_agent],
+root_agent = SequentialAgent(
+    name="data_pipeline_flow",
+    description="A sequential workflow for discovering data, generating and refining a SQL query, and running the final ETL job.",
+    sub_agents=[data_discovery_agent, query_refinement_loop, pipeline_agent],
 )

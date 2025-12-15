@@ -2,9 +2,9 @@ import os
 import traceback
 from dotenv import load_dotenv
 from google.cloud import bigquery
-
-# Import your ADK Agent
-from google.adk.agents.llm_agent import Agent
+from google.cloud.exceptions import NotFound
+from google.adk.agents import Agent, LoopAgent
+from google.adk.tools import FunctionTool, exit_loop
 
 load_dotenv()
 
@@ -25,6 +25,49 @@ class ETLTools:
         # MEMORY: Maps 'target_table' -> { 'job_id': ..., 'location': ... }
         self.job_memory = {}
 
+    def create_dataset(self, dataset_id: str) -> str:
+        """
+        Creates a BigQuery dataset if it doesn't exist.
+
+        Args:
+            dataset_id (str): The full dataset ID (e.g., project.dataset).
+
+        Returns:
+            str: Confirmation message.
+        """
+        try:
+            self.client.get_dataset(dataset_id)
+            return f"Dataset {dataset_id} already exists."
+        except NotFound:
+            print(f"--> [Tool] Dataset {dataset_id} not found. Creating it...")
+            dataset = bigquery.Dataset(dataset_id)
+            dataset.location = "us-central1"
+            self.client.create_dataset(dataset, timeout=30) # type: ignore
+            return f"Successfully created dataset {dataset_id}."
+        except Exception as e:
+            return f"Failed to create dataset: {str(e)}"
+
+    def create_table_from_ddl(self, ddl_statement: str) -> str:
+        """
+        Creates a BigQuery table using a DDL statement. It ensures the dataset exists first.
+
+        Args:
+            ddl_statement (str): The SQL DDL statement to create the table.
+
+        Returns:
+            str: Confirmation message.
+        """
+        try:
+            print(f"--> [Tool] Executing DDL to create table...")
+            job_config = bigquery.QueryJobConfig(
+                default_dataset=f"{self.client.project}.us-central1"
+            )
+            query_job = self.client.query(ddl_statement, job_config=job_config, location="us-central1")
+            query_job.result()  # Wait for the job to complete
+            return f"Successfully executed DDL. Table should now exist."
+        except Exception as e:
+            return f"Failed to create table from DDL: {str(e)}"
+
     def create_etl_job(self, target_table: str, sql_query: str) -> str:
         """
         Triggers a BigQuery ETL job for a specific target table using the provided SQL.
@@ -37,6 +80,18 @@ class ETLTools:
             str: Confirmation message with the Job ID.
         """
         try:
+            # --- ENSURE DATASET EXISTS ---
+            table_ref = bigquery.Table.from_string(target_table)
+            dataset_id = f"{table_ref.project}.{table_ref.dataset_id}"
+            try:
+                self.client.get_dataset(dataset_id)  # Check if dataset exists
+                print(f"--> [Tool] Dataset {dataset_id} already exists.")
+            except NotFound:
+                print(f"--> [Tool] Dataset {dataset_id} not found. Creating it...")
+                dataset = bigquery.Dataset(dataset_id) # type: ignore
+                dataset.location = "us-central1"
+                self.client.create_dataset(dataset, timeout=30)
+
             print(f"--> [Tool] Submitting job for: {target_table}")
             
             job_config = bigquery.QueryJobConfig(
@@ -98,20 +153,47 @@ class ETLTools:
 # 1. Instantiate the Tool Class (This keeps the memory alive)
 etl_tools_instance = ETLTools()
 
-# 2. Define the Agent
-pipeline_agent = Agent(
+# 2. Define the Setup Agent
+pipeline_setup_agent = Agent(
     model='gemini-2.5-flash',
-    name='root_agent',
-    description='A helpful assistant for managing BigQuery ETL pipelines.',
-    instruction=(
-        "You are an ETL Agent. "
-        "1. When asked to load data or run a query, use the 'create_etl_job' tool. "
-        "2. When asked for status, use the 'check_etl_status' tool. "
-        "3. You do NOT need to ask the user for a Job ID; you have access to it via the tools."
-    ),
-    # 3. Register the methods as tools
+    name='pipeline_setup_agent',
+    description='An agent that sets up the BigQuery environment and creates the ETL job.',
+    instruction="""You are a specialized BigQuery ETL setup agent. Your purpose is to prepare the target environment and create a data loading job based on the final, approved SQL query.
+
+Your workflow is as follows:
+
+1.  **Prepare Target Environment**:
+    - Your first action is to derive the production target table name from the `target_ddl` in the state. If the table name in the DDL includes 'staging', you must replace 'staging' with 'target'. For example, `my_project.my_dataset.staging_users` becomes `my_project.my_dataset.target_users`.
+    - From the derived table name (e.g., `my_project.my_dataset.target_users`), you must extract the dataset ID (`my_project.my_dataset`) and call the `create_dataset` tool to ensure it exists.
+    - After ensuring the dataset exists, you must use the `create_table_from_ddl` tool with the modified DDL to create the final target table. This ensures the destination for the ETL job exists with the correct schema.
+
+    - **CRITICAL**: Before using the `create_etl_job` tool, you MUST stop and ask the user if they want to proceed with the job execution for the derived production table.
+    - Your response should explicitly state the exact production target table name and the action you are about to take, e.g., "I am ready to start the ETL job to load data into `my_project.my_dataset.target_users`. Do you want to proceed? (yes/no)".
+    - Only if the user responds with a clear confirmation (e.g., "yes", "confirm", "proceed"), you may then call the `create_etl_job` tool with the derived production target table name and the provided `sql_query`.
+
+2.  **Monitor Job Status**:
+    - After asking for confirmation (or after job creation), if the user asks for the status, you MUST use the `check_etl_status` tool.
+    - Provide the `target_table` name to the tool. The tool remembers the Job ID, so DO NOT ask the user for it.
+    - Relay the status (RUNNING, SUCCESS, FAILED) to the user. If the job is successful, call `exit_loop` to signify completion.
+
+3.  **Error Handling**:
+    - If any tool call fails (e.g., `create_table_from_ddl` or `create_etl_job`), you must output the error message you received from the tool. This will trigger a retry from the parent loop agent.
+""",
     tools=[
+        etl_tools_instance.create_dataset,
+        etl_tools_instance.create_table_from_ddl,
         etl_tools_instance.create_etl_job,
-        etl_tools_instance.check_etl_status
+        etl_tools_instance.check_etl_status,
+        exit_loop
     ]
+)
+
+# 3. Define the Error Handling Loop Agent
+pipeline_agent = LoopAgent(
+    name="pipeline_agent",
+    description="A resilient workflow for setting up and running a BigQuery ETL job. It will retry on failure.",
+    sub_agents=[
+        pipeline_setup_agent,
+    ],
+    max_iterations=3, # Retry up to 3 times
 )
