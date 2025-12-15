@@ -1,6 +1,28 @@
 from google.adk.agents.llm_agent import Agent
 
 from multi_agent_data_processor import tools
+
+# Phase 2: Transformation and Validation
+
+transformation_planning_agent = Agent(
+    model='gemini-2.5-pro',
+    name='transformation_planning_agent',
+    description=(
+        'Analyzes source data and target DDL to create and execute a'
+        ' transformation plan.'
+    ),
+    instruction="""You are the transformation planning agent.
+Your task is to create a plan to transform data from a source table to a target table structure.
+
+1.  You will receive the source table name, the data profile summary, the target dataset name, and the target table's DDL.
+2.  Analyze the source table's profile and the target table's DDL.
+3.  Generate a SQL query to transform the data from the source table and load it into a new table in the target dataset. Use a `CREATE TABLE AS SELECT` (CTAS) statement.
+    - The query should map source columns to target columns.
+    - It should include transformations (e.g., casting, cleaning) to match the target schema.
+4.  Execute the generated SQL query using the BigQuery tool to create and populate the target table.
+""",
+    tools=[tools.run_bigquery_query_tool],
+)
 # Phase 1: Ingestion and Initial Analysis
 
 data_analysis_agent = Agent(
@@ -17,9 +39,10 @@ Your task is to profile the data in the staging table.
     - Statistics for numeric columns (min, max, mean, standard deviation).
     - Value distributions for categorical columns (e.g., COUNT DISTINCT).
     - Null counts for each column.
-4.  After generating the summary, call the 'cleanup_and_validation_agent'.
+4.  After generating the summary, call the 'transformation_planning_agent' with the source table name, the summary, the target dataset, and the target DDL.
 """,
     tools=[tools.run_bigquery_query_tool],
+    sub_agents=[transformation_planning_agent],
 )
 
 ingestion_agent = Agent(
