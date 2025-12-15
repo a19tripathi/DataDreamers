@@ -1,0 +1,9 @@
+indicator_code,indicator_name,topic
+NY.GDP.MKTP.CD,GDP (current US$),Economy
+SP.POP.TOTL,"Population, total",Population
+SP.DYN.LE00.IN,"Life expectancy at birth, total (years)",Health
+EN.ATM.CO2E.KT,CO2 emissions (kt),Environment
+SE.PRM.ENRR,"Primary enrollment, net (%)",Education
+SL.UEM.TOTL.ZS,"Unemployment, total (% of total labor force)",Labor
+SI.POV.DDAY,Poverty headcount ratio (% of population),Poverty
+BX.KLT.DINV.WD.GD.Z,"Foreign direct investment, net inflows (BoP, current US$)",Finance

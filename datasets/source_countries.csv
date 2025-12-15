@@ -1,0 +1,61 @@
+country_code,country_name,region,income_group,iso3
+CTY100,Afghanistan,South Asia,Lower middle income,AFG
+CTY101,Albania,Middle East & North Africa,Lower middle income,ALB
+CTY102,Algeria,Sub-Saharan Africa,Lower middle income,ALG
+CTY103,Angola,South Asia,Low income,ANG
+CTY104,Argentina,Latin America & Caribbean,Lower middle income,ARG
+CTY105,Armenia,Sub-Saharan Africa,Low income,ARM
+CTY106,Australia,Sub-Saharan Africa,Lower middle income,AUS
+CTY107,Austria,South Asia,High income,AUS
+CTY108,Azerbaijan,Europe & Central Asia,High income,AZE
+CTY109,Bahamas,Latin America & Caribbean,Upper middle income,BAH
+CTY110,Bahrain,South Asia,High income,BAH
+CTY111,Bangladesh,Latin America & Caribbean,Upper middle income,BAN
+CTY112,Barbados,Latin America & Caribbean,High income,BAR
+CTY113,Belarus,Sub-Saharan Africa,Low income,BEL
+CTY114,Belgium,Middle East & North Africa,High income,BEL
+CTY115,Belize,Latin America & Caribbean,Upper middle income,BEL
+CTY116,Benin,North America,Upper middle income,BEN
+CTY117,Bhutan,Sub-Saharan Africa,Lower middle income,BHU
+CTY118,Bolivia,Europe & Central Asia,Low income,BOL
+CTY119,Bosnia and Herzegovina,Middle East & North Africa,High income,BOS
+CTY120,Botswana,North America,Lower middle income,BOT
+CTY121,Brazil,North America,High income,BRA
+CTY122,Brunei,Europe & Central Asia,High income,BRU
+CTY123,Bulgaria,Middle East & North Africa,Lower middle income,BUL
+CTY124,Burkina Faso,Sub-Saharan Africa,Lower middle income,BUR
+CTY125,Burundi,East Asia & Pacific,Lower middle income,BUR
+CTY126,Cambodia,Middle East & North Africa,Lower middle income,CAM
+CTY127,Cameroon,Europe & Central Asia,Lower middle income,CAM
+CTY128,Canada,North America,High income,CAN
+CTY129,Cape Verde,Sub-Saharan Africa,Lower middle income,CAP
+CTY130,Chad,Middle East & North Africa,Low income,CHA
+CTY131,Chile,East Asia & Pacific,Upper middle income,CHI
+CTY132,China,East Asia & Pacific,Lower middle income,CHI
+CTY133,Colombia,Latin America & Caribbean,Lower middle income,COL
+CTY134,Comoros,Latin America & Caribbean,High income,COM
+CTY135,Costa Rica,South Asia,Lower middle income,COS
+CTY136,Cote d'Ivoire,Europe & Central Asia,Lower middle income,COT
+CTY137,Croatia,Middle East & North Africa,Lower middle income,CRO
+CTY138,Cuba,Middle East & North Africa,High income,CUB
+CTY139,Cyprus,South Asia,Lower middle income,CYP
+CTY140,Czech Republic,North America,Upper middle income,CZE
+CTY141,Democratic Republic of Congo,North America,High income,DEM
+CTY142,Denmark,South Asia,Upper middle income,DEN
+CTY143,Djibouti,North America,High income,DJI
+CTY144,Dominican Republic,Latin America & Caribbean,Lower middle income,DOM
+CTY145,Ecuador,Middle East & North Africa,Upper middle income,ECU
+CTY146,Egypt,South Asia,High income,EGY
+CTY147,El Salvador,Middle East & North Africa,Low income,EL 
+CTY148,Estonia,East Asia & Pacific,Lower middle income,EST
+CTY149,Ethiopia,Latin America & Caribbean,High income,ETH
+CTY150,Fiji,Sub-Saharan Africa,Low income,FIJ
+CTY151,Finland,Latin America & Caribbean,High income,FIN
+CTY152,France,South Asia,Low income,FRA
+CTY153,Gabon,Sub-Saharan Africa,Lower middle income,GAB
+CTY154,Gambia,East Asia & Pacific,Upper middle income,GAM
+CTY155,Georgia,South Asia,Low income,GEO
+CTY156,Germany,Europe & Central Asia,High income,GER
+CTY157,Ghana,Middle East & North Africa,Lower middle income,GHA
+CTY158,Greece,East Asia & Pacific,Low income,GRE
+CTY159,Guatemala,Middle East & North Africa,High income,GUA
