@@ -1,6 +1,6 @@
 from google.adk import Agent
 from google.adk.tools import FunctionTool
-from .prompts import DATA_PROFILING_SYSTEM_PROMPT
+from .prompt import DATA_PROFILING_SYSTEM_PROMPT
 from .tools import list_table_ids, get_table_info, execute_sql, BQ_CLIENT
 from .memory import AgentMemory
 import os

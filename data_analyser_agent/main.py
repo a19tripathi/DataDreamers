@@ -2,9 +2,15 @@ import os
 import json
 # UPDATED: Import Content and Part from google.genai.types
 from google.genai.types import Content, Part
-from agent import root_agent, AGENT_MEMORY, FULL_DATASET_ID, PROJECT_ID
+# from agent import root_agent, AGENT_MEMORY, FULL_DATASET_ID, PROJECT_ID
 from tools import list_table_ids # Import the list function from your tools file
 from typing import List, Dict, Any
+from dotenv import load_dotenv
+
+load_dotenv()
+PROJECT_ID = os.getenv('GOOGLE_CLOUD_PROJECT')
+DATASET_ID = os.getenv('BIGQUERY_DATASET_ID', "test_dataset") # Use env var or default
+FULL_DATASET_ID = f"{PROJECT_ID}.{DATASET_ID}" if PROJECT_ID else DATASET_ID
 
 # --- Define the function that runs your Agent ---
 
@@ -51,8 +57,11 @@ def run_data_analysis_workflow_for_all_tables(dataset_id: str = FULL_DATASET_ID)
         try:
             # The agent executes tool calls, generates SQL, and saves results to memory
             # UPDATED: Construct Content and Part using standard Gen AI SDK syntax
+            # Pass dataset_id and table_name in the context to resolve placeholders
+            # in the agent's instruction prompt.
             root_agent.run(
-                Content(parts=[Part(text=input_message)])
+                Content(parts=[Part(text=input_message)]),
+                context={"dataset_id": dataset_id, "table_name": table_name},
             )
             
             # 2b. Retrieve the final data profile from memory
@@ -83,6 +92,7 @@ if __name__ == "__main__":
     # You will need to ensure your BQ dataset has multiple tables for this test.
     
     # The final output is a list containing the structured profile for *every* table.
+    printf(f"dataset id: {FULL_DATASET_ID}")
     final_data_profiles = run_data_analysis_workflow_for_all_tables(FULL_DATASET_ID)
     
     if final_data_profiles:
