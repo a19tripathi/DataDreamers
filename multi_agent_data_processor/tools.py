@@ -3,14 +3,13 @@ import io
 from typing import Any, Dict, List
 
 from google.cloud import bigquery, storage
-from google.adk.tools.tool import tool
+from google.adk.tools import FunctionTool
 
 # Initialize clients to be reused
 storage_client = storage.Client()
 bigquery_client = bigquery.Client()
 
 
-@tool
 def get_gcs_csv_header(gcs_uri: str) -> List[str]:
     """
     Reads the first line of a CSV file from Google Cloud Storage and returns the header columns.
@@ -40,7 +39,6 @@ def get_gcs_csv_header(gcs_uri: str) -> List[str]:
     return next(reader)
 
 
-@tool
 def load_gcs_csv_to_bigquery(
     gcs_uri: str, dataset_id: str, table_id: str
 ) -> Dict[str, Any]:
@@ -77,7 +75,6 @@ def load_gcs_csv_to_bigquery(
     }
 
 
-@tool
 def run_bigquery_query(query: str) -> List[Dict[str, Any]]:
     """
     Executes a SQL query in BigQuery and returns the results.
@@ -93,7 +90,6 @@ def run_bigquery_query(query: str) -> List[Dict[str, Any]]:
     return [dict(row) for row in results]
 
 
-@tool
 def insert_bigquery_rows(dataset_id: str, table_id: str, rows: List[Dict]) -> Dict[str, Any]:
     """
     Inserts rows into a BigQuery table.
@@ -112,3 +108,10 @@ def insert_bigquery_rows(dataset_id: str, table_id: str, rows: List[Dict]) -> Di
         return {"status": "success", "inserted_rows": len(rows)}
     else:
         return {"status": "error", "errors": errors}
+
+
+# Wrap functions into FunctionTool objects for the agents
+get_gcs_csv_header_tool = FunctionTool(func=get_gcs_csv_header)
+load_gcs_csv_to_bigquery_tool = FunctionTool(func=load_gcs_csv_to_bigquery)
+run_bigquery_query_tool = FunctionTool(func=run_bigquery_query)
+insert_bigquery_rows_tool = FunctionTool(func=insert_bigquery_rows)
