@@ -1,0 +1,683 @@
+{
+  "entities": [
+    {
+      "name": "borrower",
+      "description": "Legal entity applying for and responsible for loan obligations.",
+      "primary_key": "borrower_id",
+      "columns": [
+        {
+          "name": "borrower_id",
+          "type": "INT",
+          "description": "Unique borrower identifier."
+        },
+        {
+          "name": "borrower_name",
+          "type": "STRING",
+          "description": "Legal name of borrower."
+        },
+        {
+          "name": "borrower_type",
+          "type": "STRING",
+          "description": "Organization type (Corporation, LLC, etc.)."
+        },
+        {
+          "name": "industry",
+          "type": "STRING",
+          "description": "Primary industry."
+        },
+        {
+          "name": "tax_id",
+          "type": "STRING",
+          "description": "Tax identification number."
+        },
+        {
+          "name": "country",
+          "type": "STRING",
+          "description": "Country."
+        },
+        {
+          "name": "state",
+          "type": "STRING",
+          "description": "State/region."
+        },
+        {
+          "name": "city",
+          "type": "STRING",
+          "description": "City."
+        },
+        {
+          "name": "postal_code",
+          "type": "STRING",
+          "description": "Postal code."
+        },
+        {
+          "name": "inception_date",
+          "type": "DATE",
+          "description": "Date the borrower was founded."
+        },
+        {
+          "name": "annual_revenue",
+          "type": "NUMERIC",
+          "description": "Annual revenue in local currency."
+        },
+        {
+          "name": "employees",
+          "type": "INT",
+          "description": "Number of employees."
+        }
+      ]
+    },
+    {
+      "name": "rate_index",
+      "description": "Floating rate index master (with tenor and currency).",
+      "primary_key": "index_id",
+      "columns": [
+        {
+          "name": "index_id",
+          "type": "INT",
+          "description": "Unique index identifier."
+        },
+        {
+          "name": "index_name",
+          "type": "STRING",
+          "description": "Index name (SOFR, Prime, etc.)."
+        },
+        {
+          "name": "tenor_months",
+          "type": "INT",
+          "description": "Tenor associated with the index."
+        },
+        {
+          "name": "index_currency",
+          "type": "STRING",
+          "description": "Currency of the index."
+        },
+        {
+          "name": "rate_type",
+          "type": "STRING",
+          "description": "Rate type (Floating/Fixed)."
+        },
+        {
+          "name": "day_count_convention",
+          "type": "STRING",
+          "description": "Day count convention."
+        },
+        {
+          "name": "published_by",
+          "type": "STRING",
+          "description": "Publishing authority."
+        }
+      ]
+    },
+    {
+      "name": "rate_index_history",
+      "description": "Historical observations of rate indices by effective date.",
+      "primary_key": "rate_history_id",
+      "foreign_keys": [
+        {
+          "column": "index_id",
+          "references": "rate_index.index_id"
+        }
+      ],
+      "columns": [
+        {
+          "name": "rate_history_id",
+          "type": "INT",
+          "description": "Unique history row identifier."
+        },
+        {
+          "name": "index_id",
+          "type": "INT",
+          "description": "FK to rate_index."
+        },
+        {
+          "name": "effective_date",
+          "type": "DATE",
+          "description": "Date when rate was effective."
+        },
+        {
+          "name": "rate_pct",
+          "type": "NUMERIC",
+          "description": "Rate percent (e.g., 5.25)."
+        }
+      ]
+    },
+    {
+      "name": "facility",
+      "description": "Credit facility under which loans are issued.",
+      "primary_key": "facility_id",
+      "foreign_keys": [
+        {
+          "column": "borrower_id",
+          "references": "borrower.borrower_id"
+        }
+      ],
+      "columns": [
+        {
+          "name": "facility_id",
+          "type": "INT",
+          "description": "Unique facility identifier."
+        },
+        {
+          "name": "borrower_id",
+          "type": "INT",
+          "description": "FK to borrower."
+        },
+        {
+          "name": "facility_type",
+          "type": "STRING",
+          "description": "Type of facility (Revolver, Term Loan, etc.)."
+        },
+        {
+          "name": "limit_amount",
+          "type": "NUMERIC",
+          "description": "Credit limit."
+        },
+        {
+          "name": "currency",
+          "type": "STRING",
+          "description": "Currency."
+        },
+        {
+          "name": "origination_date",
+          "type": "DATE",
+          "description": "Facility origination date."
+        },
+        {
+          "name": "maturity_date",
+          "type": "DATE",
+          "description": "Facility maturity date."
+        },
+        {
+          "name": "interest_rate_floor_bps",
+          "type": "INT",
+          "description": "Interest rate floor in basis points."
+        },
+        {
+          "name": "covenants_count",
+          "type": "INT",
+          "description": "Number of covenants."
+        }
+      ]
+    },
+    {
+      "name": "loan",
+      "description": "Individual loan records.",
+      "primary_key": "loan_id",
+      "foreign_keys": [
+        {
+          "column": "borrower_id",
+          "references": "borrower.borrower_id"
+        },
+        {
+          "column": "facility_id",
+          "references": "facility.facility_id"
+        },
+        {
+          "column": "index_id",
+          "references": "rate_index.index_id"
+        }
+      ],
+      "columns": [
+        {
+          "name": "loan_id",
+          "type": "INT",
+          "description": "Unique loan identifier."
+        },
+        {
+          "name": "borrower_id",
+          "type": "INT",
+          "description": "FK to borrower."
+        },
+        {
+          "name": "facility_id",
+          "type": "INT",
+          "description": "FK to facility."
+        },
+        {
+          "name": "index_id",
+          "type": "INT",
+          "description": "FK to rate_index."
+        },
+        {
+          "name": "loan_number",
+          "type": "STRING",
+          "description": "Human-readable loan number."
+        },
+        {
+          "name": "status",
+          "type": "STRING",
+          "description": "Status (Active, Closed, Delinquent)."
+        },
+        {
+          "name": "origination_date",
+          "type": "DATE",
+          "description": "Loan origination date."
+        },
+        {
+          "name": "maturity_date",
+          "type": "DATE",
+          "description": "Loan maturity date."
+        },
+        {
+          "name": "principal_amount",
+          "type": "NUMERIC",
+          "description": "Original principal amount."
+        },
+        {
+          "name": "currency",
+          "type": "STRING",
+          "description": "Currency."
+        },
+        {
+          "name": "purpose",
+          "type": "STRING",
+          "description": "Loan purpose."
+        },
+        {
+          "name": "loan_type",
+          "type": "STRING",
+          "description": "Type (Term Loan, Revolver, etc.)."
+        },
+        {
+          "name": "margin_bps",
+          "type": "INT",
+          "description": "Margin in basis points over index."
+        },
+        {
+          "name": "amortization_type",
+          "type": "STRING",
+          "description": "Amortization method."
+        },
+        {
+          "name": "payment_frequency",
+          "type": "STRING",
+          "description": "Payment frequency."
+        },
+        {
+          "name": "compounding",
+          "type": "STRING",
+          "description": "Compounding method."
+        }
+      ]
+    },
+    {
+      "name": "collateral",
+      "description": "Collateral securing loans.",
+      "primary_key": "collateral_id",
+      "foreign_keys": [
+        {
+          "column": "loan_id",
+          "references": "loan.loan_id"
+        }
+      ],
+      "columns": [
+        {
+          "name": "collateral_id",
+          "type": "INT",
+          "description": "Unique collateral identifier."
+        },
+        {
+          "name": "loan_id",
+          "type": "INT",
+          "description": "FK to loan."
+        },
+        {
+          "name": "collateral_type",
+          "type": "STRING",
+          "description": "Type of collateral."
+        },
+        {
+          "name": "value_amount",
+          "type": "NUMERIC",
+          "description": "Appraised value."
+        },
+        {
+          "name": "currency",
+          "type": "STRING",
+          "description": "Currency."
+        },
+        {
+          "name": "valuation_date",
+          "type": "DATE",
+          "description": "Date of valuation."
+        },
+        {
+          "name": "lien_position",
+          "type": "STRING",
+          "description": "Lien position (First/Second)."
+        },
+        {
+          "name": "location_country",
+          "type": "STRING",
+          "description": "Country of collateral."
+        },
+        {
+          "name": "location_state",
+          "type": "STRING",
+          "description": "State of collateral."
+        }
+      ]
+    },
+    {
+      "name": "guarantor",
+      "description": "Guarantors providing credit support.",
+      "primary_key": "guarantor_id",
+      "foreign_keys": [
+        {
+          "column": "borrower_id",
+          "references": "borrower.borrower_id"
+        }
+      ],
+      "columns": [
+        {
+          "name": "guarantor_id",
+          "type": "INT",
+          "description": "Unique guarantor identifier."
+        },
+        {
+          "name": "borrower_id",
+          "type": "INT",
+          "description": "FK to borrower."
+        },
+        {
+          "name": "guarantor_name",
+          "type": "STRING",
+          "description": "Name of guarantor."
+        },
+        {
+          "name": "guarantor_type",
+          "type": "STRING",
+          "description": "Individual or Corporate."
+        },
+        {
+          "name": "guarantee_type",
+          "type": "STRING",
+          "description": "Unlimited or Limited."
+        },
+        {
+          "name": "max_liability_amount",
+          "type": "NUMERIC",
+          "description": "Maximum liability amount."
+        },
+        {
+          "name": "currency",
+          "type": "STRING",
+          "description": "Currency."
+        },
+        {
+          "name": "credit_score",
+          "type": "INT",
+          "description": "Credit score if individual."
+        },
+        {
+          "name": "ownership_pct",
+          "type": "NUMERIC",
+          "description": "Ownership percentage in borrower."
+        }
+      ]
+    },
+    {
+      "name": "covenant",
+      "description": "Financial covenants tied to loans.",
+      "primary_key": "covenant_id",
+      "foreign_keys": [
+        {
+          "column": "loan_id",
+          "references": "loan.loan_id"
+        }
+      ],
+      "columns": [
+        {
+          "name": "covenant_id",
+          "type": "INT",
+          "description": "Unique covenant identifier."
+        },
+        {
+          "name": "loan_id",
+          "type": "INT",
+          "description": "FK to loan."
+        },
+        {
+          "name": "covenant_type",
+          "type": "STRING",
+          "description": "Type of covenant."
+        },
+        {
+          "name": "threshold_value",
+          "type": "NUMERIC",
+          "description": "Threshold to meet."
+        },
+        {
+          "name": "operator",
+          "type": "STRING",
+          "description": "Comparison operator."
+        },
+        {
+          "name": "measurement_frequency",
+          "type": "STRING",
+          "description": "Frequency of measurement."
+        },
+        {
+          "name": "last_test_date",
+          "type": "DATE",
+          "description": "Last date covenant was tested."
+        },
+        {
+          "name": "status",
+          "type": "STRING",
+          "description": "Status (Met, Breached, Waived)."
+        }
+      ]
+    },
+    {
+      "name": "syndicate_member",
+      "description": "Banks participating in syndicated loans.",
+      "primary_key": "member_id",
+      "columns": [
+        {
+          "name": "member_id",
+          "type": "INT",
+          "description": "Unique bank/member identifier."
+        },
+        {
+          "name": "bank_name",
+          "type": "STRING",
+          "description": "Bank name."
+        },
+        {
+          "name": "role",
+          "type": "STRING",
+          "description": "Role in syndicate."
+        },
+        {
+          "name": "bank_rating",
+          "type": "STRING",
+          "description": "External rating."
+        },
+        {
+          "name": "country",
+          "type": "STRING",
+          "description": "Country of bank."
+        }
+      ]
+    },
+    {
+      "name": "syndicate_participation",
+      "description": "Participation details linking loans and members.",
+      "primary_key": "participation_id",
+      "foreign_keys": [
+        {
+          "column": "loan_id",
+          "references": "loan.loan_id"
+        },
+        {
+          "column": "member_id",
+          "references": "syndicate_member.member_id"
+        }
+      ],
+      "columns": [
+        {
+          "name": "participation_id",
+          "type": "INT",
+          "description": "Unique participation identifier."
+        },
+        {
+          "name": "loan_id",
+          "type": "INT",
+          "description": "FK to loan."
+        },
+        {
+          "name": "member_id",
+          "type": "INT",
+          "description": "FK to syndicate_member."
+        },
+        {
+          "name": "commitment_amount",
+          "type": "NUMERIC",
+          "description": "Committed amount."
+        },
+        {
+          "name": "funded_amount",
+          "type": "NUMERIC",
+          "description": "Funded amount."
+        },
+        {
+          "name": "share_pct",
+          "type": "NUMERIC",
+          "description": "Funded share percent of loan principal."
+        },
+        {
+          "name": "role_override",
+          "type": "STRING",
+          "description": "Override of role if different in loan."
+        }
+      ]
+    },
+    {
+      "name": "risk_rating",
+      "description": "Risk ratings assigned to loans/borrowers over time.",
+      "primary_key": "rating_id",
+      "foreign_keys": [
+        {
+          "column": "loan_id",
+          "references": "loan.loan_id"
+        },
+        {
+          "column": "borrower_id",
+          "references": "borrower.borrower_id"
+        }
+      ],
+      "columns": [
+        {
+          "name": "rating_id",
+          "type": "INT",
+          "description": "Unique rating identifier."
+        },
+        {
+          "name": "loan_id",
+          "type": "INT",
+          "description": "FK to loan."
+        },
+        {
+          "name": "borrower_id",
+          "type": "INT",
+          "description": "FK to borrower."
+        },
+        {
+          "name": "rating_agency",
+          "type": "STRING",
+          "description": "Agency providing rating."
+        },
+        {
+          "name": "rating_grade",
+          "type": "STRING",
+          "description": "Rating grade (AAA..C or internal scale)."
+        },
+        {
+          "name": "score",
+          "type": "NUMERIC",
+          "description": "Score associated with rating."
+        },
+        {
+          "name": "effective_date",
+          "type": "DATE",
+          "description": "Effective date of rating."
+        },
+        {
+          "name": "expiry_date",
+          "type": "DATE",
+          "description": "Expiry date of rating."
+        }
+      ]
+    },
+    {
+      "name": "payment",
+      "description": "Payment cash flows collected for loans.",
+      "primary_key": "payment_id",
+      "foreign_keys": [
+        {
+          "column": "loan_id",
+          "references": "loan.loan_id"
+        }
+      ],
+      "columns": [
+        {
+          "name": "payment_id",
+          "type": "INT",
+          "description": "Unique payment identifier."
+        },
+        {
+          "name": "loan_id",
+          "type": "INT",
+          "description": "FK to loan."
+        },
+        {
+          "name": "payment_date",
+          "type": "DATE",
+          "description": "Date payment received."
+        },
+        {
+          "name": "due_date",
+          "type": "DATE",
+          "description": "Date payment due."
+        },
+        {
+          "name": "payment_amount",
+          "type": "NUMERIC",
+          "description": "Total payment amount."
+        },
+        {
+          "name": "principal_component",
+          "type": "NUMERIC",
+          "description": "Principal portion."
+        },
+        {
+          "name": "interest_component",
+          "type": "NUMERIC",
+          "description": "Interest portion."
+        },
+        {
+          "name": "fee_component",
+          "type": "NUMERIC",
+          "description": "Fee portion."
+        },
+        {
+          "name": "days_past_due",
+          "type": "INT",
+          "description": "Days past due."
+        },
+        {
+          "name": "currency",
+          "type": "STRING",
+          "description": "Currency."
+        },
+        {
+          "name": "payment_method",
+          "type": "STRING",
+          "description": "Payment method."
+        }
+      ]
+    }
+  ]
+}

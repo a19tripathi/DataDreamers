@@ -56,7 +56,3 @@ Your task is to start the data processing pipeline for a new file.
     tools=[tools.get_gcs_csv_header_tool],
     sub_agents=[ingestion_agent],
 )
-
-from google.adk.apps.app import App
-
-app = App(root_agent=root_agent, name="multi_agent_data_processor")

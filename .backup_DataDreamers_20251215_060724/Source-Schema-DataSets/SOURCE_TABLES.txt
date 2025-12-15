@@ -1,0 +1,15 @@
+
+# Source Tables: Schemas & Descriptions
+
+- **borrower**: Legal entity responsible for loans; master data including industry and address.
+- **rate_index**: Floating rate index master with tenor and currency.
+- **rate_index_history**: Historical daily/periodic rates linked to rate_index.
+- **facility**: Credit facility under which loans are originated.
+- **loan**: Individual loans including pricing and schedule metadata.
+- **collateral**: Collateral items linked to loans and valued over time.
+- **guarantor**: Guarantors linked to borrowers.
+- **covenant**: Financial covenants linked to loans.
+- **syndicate_member**: Banks in syndicates.
+- **syndicate_participation**: Link table between loans and syndicate members including commitments.
+- **risk_rating**: Historical and current risk ratings for loans and borrowers.
+- **payment**: Cash payments collected for loans, broken down by components.

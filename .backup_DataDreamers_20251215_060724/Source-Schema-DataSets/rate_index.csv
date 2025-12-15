@@ -1,0 +1,73 @@
+index_id,index_name,tenor_months,index_currency,rate_type,day_count_convention,published_by
+1,SOFR,1,USD,Floating,ACT/365,Federal Reserve
+2,SOFR,1,EUR,Floating,30/360,ICE Benchmark Admin
+3,SOFR,1,GBP,Floating,ACT/360,Banxico
+4,SOFR,3,USD,Floating,ACT/365,ICE Benchmark Admin
+5,SOFR,3,EUR,Floating,ACT/360,Banxico
+6,SOFR,3,GBP,Floating,ACT/365,Banxico
+7,SOFR,6,USD,Floating,30/360,ICE Benchmark Admin
+8,SOFR,6,EUR,Floating,ACT/365,Federal Reserve
+9,SOFR,6,GBP,Floating,30/360,Bank of England
+10,SOFR,12,USD,Floating,ACT/365,ICE Benchmark Admin
+11,SOFR,12,EUR,Floating,30/360,ICE Benchmark Admin
+12,SOFR,12,GBP,Floating,ACT/365,Banxico
+13,Prime,1,USD,Floating,30/360,ICE Benchmark Admin
+14,Prime,1,EUR,Floating,ACT/360,Banxico
+15,Prime,1,GBP,Floating,ACT/360,ICE Benchmark Admin
+16,Prime,3,USD,Floating,30/360,ICE Benchmark Admin
+17,Prime,3,EUR,Floating,ACT/365,Bank of England
+18,Prime,3,GBP,Floating,ACT/365,Bank of England
+19,Prime,6,USD,Floating,ACT/365,Federal Reserve
+20,Prime,6,EUR,Floating,ACT/365,ICE Benchmark Admin
+21,Prime,6,GBP,Floating,30/360,Federal Reserve
+22,Prime,12,USD,Floating,ACT/365,ICE Benchmark Admin
+23,Prime,12,EUR,Floating,ACT/365,Bank of England
+24,Prime,12,GBP,Floating,30/360,Federal Reserve
+25,EURIBOR,1,USD,Floating,ACT/365,Federal Reserve
+26,EURIBOR,1,EUR,Floating,ACT/365,ICE Benchmark Admin
+27,EURIBOR,1,GBP,Floating,30/360,Bank of England
+28,EURIBOR,3,USD,Floating,ACT/360,Bank of England
+29,EURIBOR,3,EUR,Floating,ACT/365,Federal Reserve
+30,EURIBOR,3,GBP,Floating,30/360,ICE Benchmark Admin
+31,EURIBOR,6,USD,Floating,ACT/360,Bank of England
+32,EURIBOR,6,EUR,Floating,ACT/360,ICE Benchmark Admin
+33,EURIBOR,6,GBP,Floating,ACT/365,Banxico
+34,EURIBOR,12,USD,Floating,ACT/365,Banxico
+35,EURIBOR,12,EUR,Floating,ACT/365,Federal Reserve
+36,EURIBOR,12,GBP,Floating,30/360,Bank of England
+37,SONIA,1,USD,Floating,30/360,Federal Reserve
+38,SONIA,1,EUR,Floating,ACT/365,Federal Reserve
+39,SONIA,1,GBP,Floating,ACT/365,Federal Reserve
+40,SONIA,3,USD,Floating,ACT/365,Banxico
+41,SONIA,3,EUR,Floating,ACT/365,ICE Benchmark Admin
+42,SONIA,3,GBP,Floating,ACT/360,Banxico
+43,SONIA,6,USD,Floating,ACT/365,ICE Benchmark Admin
+44,SONIA,6,EUR,Floating,30/360,ICE Benchmark Admin
+45,SONIA,6,GBP,Floating,ACT/360,Bank of England
+46,SONIA,12,USD,Floating,ACT/365,Bank of England
+47,SONIA,12,EUR,Floating,30/360,Banxico
+48,SONIA,12,GBP,Floating,ACT/365,Banxico
+49,TIIE,1,USD,Floating,ACT/360,Bank of England
+50,TIIE,1,EUR,Floating,ACT/365,Banxico
+51,TIIE,1,GBP,Floating,ACT/360,Banxico
+52,TIIE,3,USD,Floating,ACT/360,ICE Benchmark Admin
+53,TIIE,3,EUR,Floating,ACT/360,Banxico
+54,TIIE,3,GBP,Floating,ACT/365,Bank of England
+55,TIIE,6,USD,Floating,ACT/360,Banxico
+56,TIIE,6,EUR,Floating,ACT/360,ICE Benchmark Admin
+57,TIIE,6,GBP,Floating,ACT/365,Federal Reserve
+58,TIIE,12,USD,Floating,ACT/360,Bank of England
+59,TIIE,12,EUR,Floating,ACT/360,Bank of England
+60,TIIE,12,GBP,Floating,ACT/360,ICE Benchmark Admin
+61,BBSW,1,USD,Floating,30/360,Bank of England
+62,BBSW,1,EUR,Floating,ACT/365,Banxico
+63,BBSW,1,GBP,Floating,ACT/360,ICE Benchmark Admin
+64,BBSW,3,USD,Floating,30/360,Federal Reserve
+65,BBSW,3,EUR,Floating,ACT/365,Bank of England
+66,BBSW,3,GBP,Floating,ACT/360,Banxico
+67,BBSW,6,USD,Floating,ACT/365,Banxico
+68,BBSW,6,EUR,Floating,ACT/360,ICE Benchmark Admin
+69,BBSW,6,GBP,Floating,ACT/365,Banxico
+70,BBSW,12,USD,Floating,ACT/365,Banxico
+71,BBSW,12,EUR,Floating,30/360,Federal Reserve
+72,BBSW,12,GBP,Floating,30/360,ICE Benchmark Admin
