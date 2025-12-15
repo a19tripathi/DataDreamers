@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS `analytics.dim_loan` (
+  loan_id INT64,
+  borrower_id INT64,
+  facility_id INT64,
+  index_id INT64,
+  loan_number STRING,
+  status STRING,
+  origination_date DATE,
+  maturity_date DATE,
+  principal_amount NUMERIC,
+  currency STRING,
+  purpose STRING,
+  loan_type STRING,
+  margin_bps INT64,
+  amortization_type STRING,
+  payment_frequency STRING,
+  compounding STRING,
+  index_name STRING,
+  tenor_months INT64,
+  index_currency STRING
+);

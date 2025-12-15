@@ -1,0 +1,17 @@
+
+# Target (BigQuery) Tables: Schemas & Descriptions
+
+## Dimensions
+- **dim_date**: Calendar attributes for reporting keyed by `date_key`.
+- **dim_borrower**: Borrower master attributes.
+- **dim_rate_index**: Rate index master attributes.
+- **dim_facility**: Facility attributes.
+- **dim_loan**: Loan master attributes enriched with rate index details.
+- **dim_collateral**: Collateral master attributes.
+- **dim_guarantor**: Guarantor master attributes.
+- **dim_syndicate_member**: Syndicate bank master.
+- **dim_risk_rating**: Latest rating per loan for slicing facts by credit quality.
+
+## Facts
+- **fact_payments**: Fact table of payment events with measures and linkage to loan and borrower.
+- **fact_loan_snapshot**: Point-in-time loan balances and risk metrics captured at last payment date.

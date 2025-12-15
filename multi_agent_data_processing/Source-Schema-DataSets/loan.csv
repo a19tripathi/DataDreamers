@@ -1,0 +1,121 @@
+loan_id,borrower_id,facility_id,index_id,loan_number,status,origination_date,maturity_date,principal_amount,currency,purpose,loan_type,margin_bps,amortization_type,payment_frequency,compounding
+1,47,19,28,LN-00001,Closed,2024-02-06,2028-04-19,94012893.43,EUR,Acquisition,Revolver,275,Interest-Only,Monthly,Compound
+2,52,21,55,LN-00002,Delinquent,2024-12-27,2026-12-05,43912674.94,GBP,Refinance,SBA,200,Bullet,Quarterly,Compound
+3,58,26,64,LN-00003,Delinquent,2024-10-19,2028-08-26,82656723.27,EUR,Acquisition,Revolver,225,Straight-Line,Quarterly,Simple
+4,15,17,4,LN-00004,Delinquent,2024-06-01,2025-08-14,62356421.24,GBP,Project Finance,Revolver,275,Interest-Only,Monthly,Simple
+5,50,49,58,LN-00005,Active,2024-11-06,2028-07-24,60140781.1,GBP,Project Finance,SBA,300,Interest-Only,Quarterly,Simple
+6,36,57,16,LN-00006,Closed,2025-03-30,2028-03-11,94542326.18,EUR,Working Capital,Term Loan,150,Straight-Line,Quarterly,Simple
+7,77,55,26,LN-00007,Closed,2024-11-29,2027-03-31,17733083.27,GBP,Project Finance,Equipment Financing,275,Straight-Line,Quarterly,Compound
+8,48,25,60,LN-00008,Delinquent,2024-06-09,2028-12-08,36191844.05,EUR,Project Finance,Equipment Financing,275,Interest-Only,Quarterly,Compound
+9,25,33,66,LN-00009,Closed,2024-06-27,2028-02-22,69123622.59,EUR,Working Capital,Bridge,275,Interest-Only,Quarterly,Compound
+10,2,44,63,LN-00010,Closed,2023-09-21,2026-07-11,86120282.11,GBP,Refinance,SBA,200,Straight-Line,Quarterly,Simple
+11,10,54,12,LN-00011,Active,2025-03-08,2028-05-15,27347680.97,EUR,Working Capital,Revolver,300,Interest-Only,Quarterly,Simple
+12,40,40,12,LN-00012,Active,2025-02-19,2027-10-26,40727986.48,USD,Working Capital,Term Loan,250,Bullet,Quarterly,Simple
+13,40,40,21,LN-00013,Closed,2023-12-18,2026-04-10,66791071.01,USD,Project Finance,Revolver,175,Bullet,Quarterly,Simple
+14,36,57,9,LN-00014,Closed,2024-10-09,2026-11-18,43572591.26,EUR,Project Finance,SBA,200,Straight-Line,Monthly,Simple
+15,48,25,35,LN-00015,Closed,2024-06-29,2026-06-04,51795266.07,EUR,Acquisition,Revolver,250,Interest-Only,Monthly,Compound
+16,59,46,61,LN-00016,Closed,2024-10-01,2028-01-19,80965379.79,USD,Refinance,SBA,300,Straight-Line,Quarterly,Simple
+17,25,13,27,LN-00017,Delinquent,2024-04-21,2028-01-08,20609252.16,EUR,Refinance,Equipment Financing,225,Interest-Only,Quarterly,Simple
+18,25,13,49,LN-00018,Closed,2024-09-07,2025-12-04,50874670.5,EUR,Refinance,Revolver,275,Bullet,Quarterly,Compound
+19,76,41,36,LN-00019,Active,2024-10-18,2026-04-06,91577394.24,GBP,Project Finance,SBA,150,Bullet,Monthly,Simple
+20,25,33,37,LN-00020,Active,2025-02-09,2029-04-05,18258850.42,EUR,Refinance,Bridge,300,Bullet,Quarterly,Simple
+21,39,22,47,LN-00021,Active,2024-12-18,2029-10-26,22862623.52,EUR,Refinance,Bridge,300,Straight-Line,Quarterly,Compound
+22,22,45,57,LN-00022,Delinquent,2023-11-17,2025-08-08,55559587.98,USD,Working Capital,Bridge,175,Bullet,Monthly,Simple
+23,33,42,57,LN-00023,Active,2024-05-25,2027-04-06,34419543.45,GBP,Acquisition,Equipment Financing,175,Straight-Line,Quarterly,Compound
+24,25,33,31,LN-00024,Closed,2025-04-02,2027-06-27,21604446.65,EUR,Refinance,Equipment Financing,250,Interest-Only,Quarterly,Compound
+25,40,15,46,LN-00025,Delinquent,2023-08-29,2025-09-01,20441832.03,EUR,Working Capital,Equipment Financing,275,Bullet,Quarterly,Compound
+26,66,7,39,LN-00026,Delinquent,2024-12-10,2027-01-20,55807183.96,GBP,Refinance,SBA,250,Straight-Line,Monthly,Compound
+27,59,46,33,LN-00027,Delinquent,2024-11-02,2026-02-09,96031744.92,USD,Project Finance,Term Loan,150,Straight-Line,Monthly,Compound
+28,70,58,50,LN-00028,Active,2023-10-24,2028-05-08,2615389.57,EUR,Acquisition,Term Loan,175,Interest-Only,Monthly,Simple
+29,16,18,2,LN-00029,Delinquent,2024-12-07,2027-07-03,6169464.37,EUR,Acquisition,SBA,250,Interest-Only,Monthly,Simple
+30,15,23,62,LN-00030,Active,2023-04-06,2027-06-12,73197514.64,GBP,Refinance,Bridge,250,Straight-Line,Quarterly,Simple
+31,15,23,35,LN-00031,Active,2024-04-07,2025-05-14,48176285.72,GBP,Project Finance,SBA,200,Interest-Only,Quarterly,Simple
+32,11,1,59,LN-00032,Delinquent,2023-02-27,2025-01-11,81731676.26,EUR,Working Capital,Bridge,150,Bullet,Quarterly,Compound
+33,15,23,2,LN-00033,Active,2023-07-13,2027-10-13,48476947.33,GBP,Refinance,Bridge,150,Interest-Only,Quarterly,Compound
+34,48,25,15,LN-00034,Closed,2022-11-23,2025-01-06,66695436.88,EUR,Acquisition,Bridge,175,Interest-Only,Monthly,Compound
+35,44,47,25,LN-00035,Delinquent,2023-09-13,2025-08-18,45948123.91,EUR,Acquisition,Term Loan,250,Straight-Line,Monthly,Compound
+36,49,32,41,LN-00036,Active,2024-05-18,2029-03-18,57429419.23,USD,Project Finance,Revolver,275,Bullet,Quarterly,Compound
+37,11,1,27,LN-00037,Active,2025-02-08,2028-03-16,48830907.32,EUR,Acquisition,SBA,250,Straight-Line,Quarterly,Simple
+38,61,16,21,LN-00038,Active,2024-06-02,2027-10-01,30482642.95,EUR,Acquisition,Term Loan,275,Straight-Line,Monthly,Compound
+39,7,9,58,LN-00039,Active,2024-12-24,2026-02-26,34108770.55,GBP,Acquisition,Revolver,150,Bullet,Quarterly,Compound
+40,39,22,54,LN-00040,Active,2024-10-01,2026-02-13,58760368.45,EUR,Acquisition,Bridge,250,Bullet,Monthly,Compound
+41,15,23,2,LN-00041,Active,2024-02-18,2028-11-16,21316216.61,GBP,Working Capital,Term Loan,300,Bullet,Quarterly,Simple
+42,39,22,69,LN-00042,Delinquent,2024-11-13,2029-07-13,32703128.81,EUR,Refinance,Equipment Financing,275,Interest-Only,Monthly,Compound
+43,71,29,57,LN-00043,Closed,2023-12-27,2025-07-17,57992677.62,GBP,Refinance,Bridge,175,Bullet,Quarterly,Simple
+44,23,28,47,LN-00044,Active,2023-03-07,2026-11-17,87826597.8,USD,Refinance,Term Loan,200,Straight-Line,Monthly,Simple
+45,36,57,8,LN-00045,Delinquent,2023-12-19,2027-01-12,18409318.33,EUR,Refinance,Bridge,150,Straight-Line,Monthly,Simple
+46,70,58,65,LN-00046,Closed,2025-01-18,2026-02-08,84067056.41,EUR,Refinance,SBA,200,Interest-Only,Monthly,Simple
+47,6,35,72,LN-00047,Closed,2024-09-04,2026-08-07,70401787.89,GBP,Refinance,Bridge,200,Bullet,Monthly,Compound
+48,6,35,41,LN-00048,Closed,2024-11-07,2029-04-26,19236545.87,GBP,Refinance,Bridge,250,Straight-Line,Quarterly,Compound
+49,49,34,71,LN-00049,Closed,2024-12-10,2028-11-07,76503172.79,EUR,Acquisition,Term Loan,250,Interest-Only,Quarterly,Compound
+50,6,35,20,LN-00050,Closed,2023-06-28,2027-06-01,41130340.88,GBP,Working Capital,SBA,175,Straight-Line,Monthly,Simple
+51,68,31,33,LN-00051,Delinquent,2023-06-20,2025-12-21,90303933.05,USD,Project Finance,Equipment Financing,200,Straight-Line,Monthly,Simple
+52,44,47,58,LN-00052,Delinquent,2025-02-14,2029-12-22,49558655.19,EUR,Working Capital,Bridge,150,Interest-Only,Quarterly,Simple
+53,61,43,4,LN-00053,Delinquent,2025-02-17,2027-07-25,24259070.45,GBP,Working Capital,SBA,150,Straight-Line,Monthly,Compound
+54,7,48,27,LN-00054,Active,2024-11-10,2029-04-27,89738800.33,USD,Acquisition,Equipment Financing,275,Straight-Line,Monthly,Compound
+55,40,15,48,LN-00055,Closed,2025-03-28,2030-03-12,82391956.02,EUR,Project Finance,SBA,300,Interest-Only,Quarterly,Simple
+56,77,55,15,LN-00056,Closed,2023-11-22,2027-04-23,14991454.47,GBP,Project Finance,Bridge,175,Bullet,Quarterly,Simple
+57,16,18,33,LN-00057,Delinquent,2023-05-03,2025-06-04,78929109.17,EUR,Refinance,Equipment Financing,200,Bullet,Monthly,Compound
+58,40,20,6,LN-00058,Closed,2023-01-06,2025-06-23,96424579.86,GBP,Refinance,Term Loan,150,Straight-Line,Quarterly,Simple
+59,15,17,32,LN-00059,Delinquent,2023-11-30,2027-07-17,96726302.64,GBP,Project Finance,Bridge,275,Straight-Line,Quarterly,Simple
+60,15,17,51,LN-00060,Delinquent,2024-11-28,2025-12-23,70159669.83,GBP,Working Capital,Equipment Financing,300,Straight-Line,Quarterly,Simple
+61,37,36,9,LN-00061,Delinquent,2022-10-15,2024-09-13,53094046.73,GBP,Refinance,Term Loan,175,Straight-Line,Quarterly,Simple
+62,52,14,8,LN-00062,Active,2024-11-01,2026-11-11,28770808.69,GBP,Project Finance,Term Loan,250,Straight-Line,Monthly,Simple
+63,71,3,59,LN-00063,Active,2024-01-31,2027-02-01,34808347.23,GBP,Refinance,Revolver,150,Straight-Line,Quarterly,Simple
+64,22,45,10,LN-00064,Closed,2024-09-18,2028-05-25,39291541.11,USD,Acquisition,Equipment Financing,150,Straight-Line,Quarterly,Simple
+65,40,51,24,LN-00065,Closed,2024-09-01,2026-11-29,40284369.15,GBP,Project Finance,Term Loan,250,Interest-Only,Monthly,Compound
+66,58,26,2,LN-00066,Delinquent,2024-05-09,2026-02-07,10291606.11,EUR,Project Finance,Equipment Financing,225,Interest-Only,Monthly,Simple
+67,14,52,10,LN-00067,Delinquent,2023-11-04,2026-05-12,17098866.42,USD,Acquisition,SBA,275,Bullet,Monthly,Compound
+68,48,25,38,LN-00068,Delinquent,2022-07-09,2026-10-02,59445282.53,EUR,Acquisition,Term Loan,275,Straight-Line,Monthly,Compound
+69,67,37,50,LN-00069,Active,2024-12-03,2026-08-11,30831654.73,USD,Refinance,Equipment Financing,150,Straight-Line,Monthly,Simple
+70,35,4,61,LN-00070,Delinquent,2023-03-23,2025-04-29,93475613.93,GBP,Refinance,Bridge,150,Straight-Line,Quarterly,Compound
+71,32,60,44,LN-00071,Delinquent,2025-01-28,2028-09-25,87107608.65,GBP,Refinance,Term Loan,275,Interest-Only,Quarterly,Compound
+72,59,46,12,LN-00072,Delinquent,2024-07-27,2026-07-23,37748446.15,USD,Working Capital,Bridge,200,Bullet,Quarterly,Compound
+73,2,44,30,LN-00073,Active,2022-12-13,2025-12-21,73902469.74,GBP,Refinance,SBA,150,Bullet,Quarterly,Simple
+74,7,9,11,LN-00074,Closed,2023-04-10,2026-10-12,44295064.82,GBP,Acquisition,Term Loan,225,Straight-Line,Monthly,Simple
+75,49,34,28,LN-00075,Delinquent,2024-10-14,2028-06-15,37736791.69,EUR,Refinance,Bridge,200,Bullet,Quarterly,Compound
+76,16,18,7,LN-00076,Closed,2022-12-12,2027-09-21,72428588.77,EUR,Working Capital,Bridge,250,Interest-Only,Quarterly,Compound
+77,52,14,58,LN-00077,Closed,2024-10-09,2027-08-20,45907453.8,GBP,Working Capital,Equipment Financing,225,Straight-Line,Monthly,Simple
+78,25,13,53,LN-00078,Delinquent,2024-12-13,2028-04-09,53583916.91,EUR,Project Finance,Revolver,175,Interest-Only,Monthly,Simple
+79,64,50,38,LN-00079,Delinquent,2022-11-16,2025-05-22,75958915.82,GBP,Acquisition,SBA,200,Interest-Only,Monthly,Compound
+80,40,40,9,LN-00080,Delinquent,2023-09-01,2027-04-17,91517401.87,USD,Refinance,Equipment Financing,175,Bullet,Monthly,Compound
+81,61,43,10,LN-00081,Closed,2024-05-28,2026-04-09,17535462.68,GBP,Project Finance,SBA,250,Straight-Line,Quarterly,Compound
+82,40,51,59,LN-00082,Closed,2024-02-29,2028-05-02,88836159.56,GBP,Refinance,Equipment Financing,250,Straight-Line,Quarterly,Simple
+83,14,52,40,LN-00083,Active,2024-11-10,2029-02-26,32268799.92,USD,Acquisition,Bridge,200,Bullet,Quarterly,Compound
+84,11,1,61,LN-00084,Delinquent,2023-02-06,2024-04-29,55714226.86,EUR,Project Finance,Revolver,175,Straight-Line,Monthly,Simple
+85,27,53,12,LN-00085,Active,2024-10-30,2026-01-14,88961401.39,EUR,Acquisition,Bridge,225,Interest-Only,Quarterly,Simple
+86,14,52,59,LN-00086,Closed,2025-02-12,2028-09-05,89669217.37,USD,Acquisition,Term Loan,275,Interest-Only,Quarterly,Simple
+87,7,9,58,LN-00087,Closed,2024-07-08,2025-08-09,58369253.07,GBP,Acquisition,Equipment Financing,225,Interest-Only,Quarterly,Simple
+88,7,56,18,LN-00088,Active,2024-06-03,2026-03-30,92495907.17,USD,Refinance,Equipment Financing,300,Straight-Line,Quarterly,Simple
+89,77,55,7,LN-00089,Active,2024-08-23,2027-04-27,59440671.91,GBP,Refinance,Bridge,300,Bullet,Monthly,Compound
+90,7,48,43,LN-00090,Active,2024-06-01,2026-01-03,28596368.29,USD,Acquisition,Bridge,275,Bullet,Monthly,Simple
+91,15,17,68,LN-00091,Active,2024-07-03,2029-05-20,79268756.58,GBP,Acquisition,Bridge,150,Interest-Only,Monthly,Simple
+92,16,18,35,LN-00092,Delinquent,2023-02-25,2025-07-14,43867922.61,EUR,Acquisition,Term Loan,175,Interest-Only,Monthly,Simple
+93,39,22,42,LN-00093,Closed,2024-06-20,2027-09-28,60287735.96,EUR,Working Capital,SBA,225,Bullet,Quarterly,Simple
+94,70,58,14,LN-00094,Delinquent,2025-03-14,2027-08-14,95662994.55,EUR,Refinance,Revolver,300,Bullet,Monthly,Simple
+95,42,10,11,LN-00095,Delinquent,2024-12-19,2027-09-04,18386922.75,EUR,Project Finance,Revolver,175,Interest-Only,Quarterly,Simple
+96,40,40,43,LN-00096,Delinquent,2023-11-15,2025-12-07,11563193.36,USD,Project Finance,Term Loan,200,Straight-Line,Monthly,Compound
+97,7,9,42,LN-00097,Delinquent,2023-09-13,2026-02-20,24191562.85,GBP,Acquisition,Bridge,300,Bullet,Monthly,Simple
+98,36,57,63,LN-00098,Closed,2024-10-12,2025-12-08,58958982.66,EUR,Refinance,Revolver,225,Bullet,Monthly,Compound
+99,61,43,15,LN-00099,Closed,2024-04-01,2027-08-13,57138339.16,GBP,Working Capital,Equipment Financing,250,Bullet,Quarterly,Simple
+100,44,8,53,LN-00100,Delinquent,2022-03-31,2024-12-31,62225943.97,EUR,Refinance,Term Loan,275,Interest-Only,Quarterly,Simple
+101,61,16,10,LN-00101,Active,2024-06-12,2025-07-21,32081286.6,EUR,Project Finance,Term Loan,225,Straight-Line,Monthly,Compound
+102,15,17,62,LN-00102,Delinquent,2024-04-26,2027-06-04,63970978.77,GBP,Refinance,Equipment Financing,200,Interest-Only,Quarterly,Compound
+103,59,46,10,LN-00103,Active,2024-01-02,2028-11-13,31722755.67,USD,Working Capital,Bridge,275,Bullet,Monthly,Compound
+104,39,22,67,LN-00104,Delinquent,2024-06-17,2027-07-18,80537772.22,EUR,Refinance,Term Loan,250,Interest-Only,Monthly,Compound
+105,14,52,16,LN-00105,Closed,2024-07-23,2028-04-09,23862224.64,USD,Refinance,Bridge,250,Bullet,Monthly,Simple
+106,61,16,9,LN-00106,Delinquent,2023-10-18,2027-06-19,90524858.6,EUR,Acquisition,Bridge,250,Straight-Line,Quarterly,Compound
+107,15,17,20,LN-00107,Delinquent,2025-03-06,2029-01-19,16079977.36,GBP,Refinance,Equipment Financing,150,Straight-Line,Monthly,Simple
+108,16,18,37,LN-00108,Closed,2024-08-23,2029-01-23,54346526.67,EUR,Working Capital,Term Loan,225,Interest-Only,Monthly,Compound
+109,6,35,21,LN-00109,Closed,2023-06-18,2024-09-15,10885095.42,GBP,Acquisition,Term Loan,250,Bullet,Quarterly,Simple
+110,23,11,24,LN-00110,Delinquent,2025-02-10,2029-10-22,7217257.61,USD,Project Finance,Equipment Financing,175,Bullet,Monthly,Simple
+111,64,50,30,LN-00111,Active,2025-02-06,2029-08-03,33836330.24,GBP,Working Capital,SBA,275,Bullet,Quarterly,Simple
+112,68,31,9,LN-00112,Active,2023-09-26,2028-01-29,72845975.91,USD,Refinance,Term Loan,200,Bullet,Monthly,Compound
+113,22,45,17,LN-00113,Closed,2024-04-19,2025-12-19,89194335.65,USD,Working Capital,Equipment Financing,275,Bullet,Monthly,Simple
+114,40,15,32,LN-00114,Closed,2023-02-27,2025-12-27,56696626.27,EUR,Acquisition,Revolver,225,Straight-Line,Monthly,Simple
+115,27,12,23,LN-00115,Closed,2024-12-20,2029-09-03,48637662.7,USD,Working Capital,SBA,300,Straight-Line,Monthly,Simple
+116,69,30,11,LN-00116,Delinquent,2023-11-30,2028-06-18,27460057.03,EUR,Working Capital,Bridge,200,Interest-Only,Monthly,Compound
+117,52,21,56,LN-00117,Delinquent,2024-05-16,2025-10-31,71772225.24,GBP,Refinance,Equipment Financing,275,Straight-Line,Monthly,Compound
+118,52,21,42,LN-00118,Delinquent,2024-11-24,2027-06-15,14324306.24,GBP,Acquisition,Bridge,250,Bullet,Quarterly,Simple
+119,77,55,41,LN-00119,Closed,2023-01-15,2025-02-08,60119450.79,GBP,Project Finance,Bridge,200,Bullet,Monthly,Simple
+120,22,59,48,LN-00120,Closed,2023-11-16,2026-09-29,24642670.85,EUR,Working Capital,Revolver,175,Straight-Line,Quarterly,Compound
