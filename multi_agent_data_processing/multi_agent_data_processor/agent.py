@@ -4,7 +4,7 @@ from multi_agent_data_processor import tools
 # Phase 1: Ingestion and Initial Analysis
 
 root_agent = Agent(
-    model='gemini-1.5-flash',
+    model='gemini-2.5-flash',
     name='root_agent',
     description='Orchestrates the data processing pipeline when a new file arrives.',
     instruction="""You are the root orchestrator agent.
@@ -22,7 +22,7 @@ Your task is to start the data processing pipeline for a new file.
 )
 
 ingestion_agent = Agent(
-    model='gemini-1.5-flash',
+    model='gemini-2.5-flash',
     name='ingestion_agent',
     description='Ingests data from a GCS CSV file into a BigQuery staging table.',
     instruction="""You are the ingestion agent.
@@ -39,7 +39,7 @@ Your task is to load data from a CSV file into a BigQuery staging table.
 )
 
 data_analysis_agent = Agent(
-    model='gemini-1.5-flash',
+    model='gemini-2.5-flash',
     name='data_analysis_agent',
     description='Profiles and analyzes data in a BigQuery staging table.',
     instruction="""You are the data analysis agent.
