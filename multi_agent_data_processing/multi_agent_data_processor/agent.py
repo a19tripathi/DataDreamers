@@ -6,7 +6,7 @@ import logging
 from google.cloud import bigquery
 
 from google.adk import Agent
-from google.adk.agents import SequentialAgent 
+from google.adk.agents import SequentialAgent, LoopAgent 
 from google.adk.tools.tool_context import ToolContext
 from google.adk.tools import exit_loop 
 
@@ -231,7 +231,7 @@ table_discovery_agent = Agent(
 
 # 2. TRANSFORMATION PLANNING AGENT
 transformation_planning_agent = Agent(
-    model='gemini-2.5-flash',
+    model='gemini-2.5-pro',
     name='transformation_planning_agent',
     description='Creates a high-level transformation plan.',
     instruction="""
@@ -389,9 +389,10 @@ etl_planning_pipeline = SequentialAgent(
 )
 
 # B. EXECUTION PIPELINE
-etl_execution_pipeline = SequentialAgent(
+etl_execution_pipeline = LoopAgent(
     name="etl_execution_pipeline",
     description="A pipeline to generate and validate the transformation SQL.",
+    max_iterations=5,
     sub_agents=[
         sql_generation_agent,
         sql_validation_agent,
@@ -401,7 +402,7 @@ etl_execution_pipeline = SequentialAgent(
 
 # C. ROOT AGENT (Orchestrator)
 root_agent = Agent(
-    model='gemini-2.5-flash',
+    model='gemini-2.5-pro',
     name='etl_orchestrator_agent',
     description='Controls the ETL flow by prioritizing the next required step based on state.',
     instruction="""
