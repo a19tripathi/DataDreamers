@@ -124,14 +124,6 @@ keras==3.10.0
 keyring==25.6.0
 keyrings.google-artifactregistry-auth==1.1.2
 kubernetes==34.1.0
-langchain==0.3.27
-langchain-community==0.3.20
-langchain-core==1.2.1
-langchain-text-splitters==0.3.11
-langgraph==0.4.7
-langgraph-checkpoint==3.0.1
-langgraph-prebuilt==1.0.5
-langgraph-sdk==0.3.0
 langsmith==0.3.45
 launchpadlib==1.11.0
 lazr.restfulclient==0.14.6
