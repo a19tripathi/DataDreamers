@@ -6,9 +6,10 @@ import logging
 from google.cloud import bigquery
 
 from google.adk import Agent
-from google.adk.agents import SequentialAgent 
+from google.adk.agents import SequentialAgent, LoopAgent 
 from google.adk.tools.tool_context import ToolContext
 from google.adk.tools import exit_loop 
+from .callback_logging import log_query_to_model, log_model_response
 
 # Import BigQuery tools for discovery and validation only
 from google.adk.tools.bigquery import BigQueryToolset
@@ -226,7 +227,9 @@ table_discovery_agent = Agent(
     2. Save the list of table names to the 'source_tables' state key using the `append_to_state` tool. 
     3. Inform the user about the discovered tables.
     """,
-    tools=[bigquery_toolset, append_to_state]
+    tools=[bigquery_toolset, append_to_state],
+    before_model_callback=log_query_to_model,
+    after_model_callback=log_model_response
 )
 
 # 2. TRANSFORMATION PLANNING AGENT
@@ -234,42 +237,59 @@ transformation_planning_agent = Agent(
     model='gemini-2.5-flash',
     name='transformation_planning_agent',
     description='Creates a high-level transformation plan.',
-    instruction="""
-    You are an expert ETL architect. Your task is to create or revise a high-level transformation plan.
+    instruction="""You are an expert ETL architect. Your task is to create or revise a high-level transformation plan.
     
     The user wants to create a target table with the following schema: "{target_schema}"
     The available source tables are: {source_tables}
     
     **CRITICAL CHECK:** Look for existing feedback in the state key 'plan_feedback'.
-    - If 'plan_feedback' exists, you MUST revise the previous plan based on the feedback.
+    - If 'plan_feedback' exists, you MUST revise the previous plan based on the feedback. Clear the 'plan_feedback' state after using it.
     - If no feedback exists, you are creating the first version of the plan.
 
     **Your steps are:**
     1. Formulate a detailed conceptual plan. If revising, explicitly mention what you changed.
     2. Save your new or revised plan to the 'transformation_plan' state key using `append_to_state`.
-    3. Present the complete plan to the user clearly.
-    4. Also present the user the **CONFIDENCE SCORE from 0 to 1** for the plan.
-    5. Ask user to review the presented plan.
+    3. Your output should only be the confirmation that the plan has been saved. The `plan_validation_agent` agent will validate it.
     """,
-    tools=[bigquery_toolset, append_to_state], 
+    tools=[bigquery_toolset, append_to_state],
+    before_model_callback=log_query_to_model,
+    after_model_callback=log_model_response
 )
 
-# 3. PLAN CONFIRMATION AGENT
+# 3. PLAN VALIDATION AGENT (INTERNAL)
+plan_validation_agent = Agent(
+    model='gemini-2.5-flash',
+    name='plan_validation_agent',
+    description='Performs an internal-only validation of the transformation plan.',
+    instruction="""You are a meticulous ETL Plan Validator. Your job is to perform an automated review of the plan created by the planning agent. You do NOT interact with the user.
+
+**YOUR STEPS:**
+1.  Review the latest plan in the 'transformation_plan' state.
+2.  Does the plan seem logical, complete, and likely to succeed? Does it correctly map source columns to the target schema?
+3.  **If the plan is NOT satisfactory:** 
+    - Generate constructive feedback on what needs to be fixed.
+    - Save this feedback to the 'plan_feedback' state key.
+    - Set the 'plan_approved' state key to "revise".
+    - Announce that you are requesting a revision based on your findings.
+4.  **If the plan IS satisfactory:** 
+    - Set the 'plan_approved' state key to `True`.
+    - Announce that the internal plan validation has passed.
+    - Exit the loop using the `exit_loop` tool so the user can be prompted for final confirmation.
+""",
+    tools=[append_to_state, exit_loop],
+    before_model_callback=log_query_to_model,
+    after_model_callback=log_model_response
+)
+
+# 4. PLAN CONFIRMATION AGENT (USER-FACING)
 plan_confirmation_agent = Agent(
     model='gemini-2.5-flash',
     name='plan_confirmation_agent',
-    description='Processes user approval or rejection for the plan.',
-    instruction="""
-    You are the Plan Confirmation Agent.
-    1. If the user explicitly approves ("yes", "proceed", "looks good"), set the 'plan_approved' state key to True.
-    2. If the user rejects ("no", "stop"), set 'plan_approved' to False.
-    3. If the user provides feedback or asks for changes, save their feedback to the 'plan_feedback' state key and set 'plan_approved' to "revise".
-    4. Once done, return the control to `root_agent`.
-    """,
-    tools=[append_to_state],
+    description='Presents the validated plan to the user for final approval.',
+    instruction="""Present the latest 'transformation_plan' from the state to the user. Include a confidence score from 0 to 1. Ask the user for their final approval ("Does this plan look correct? Please reply with 'yes' to approve, or provide feedback for changes.").""",
 )
 
-# 4. SQL GENERATION AGENT
+# 5. SQL GENERATION AGENT
 sql_generation_agent = Agent(
     model='gemini-2.5-flash',
     name='sql_generation_agent',
@@ -281,65 +301,60 @@ sql_generation_agent = Agent(
     - Transformation Plan: "{{transformation_plan}}"
     - Source Tables: {{source_tables}}
     - Target Schema: "{{target_schema}}"
-    - Source dataset: '{DATASET_ID}'
     
     **CRITICAL:** Look for 'sql_feedback' in state. If it exists, revise your previous query.
-
+    
     **YOUR STEPS:**
-    1. Write ONLY a SELECT query (NOT CREATE TABLE). The SELECT should produce data matching the target schema.
-    2. Fully qualify all source table names with project and dataset.
-    3. Save the SELECT query to the 'sql_query' state key using `append_to_state`.
-    4. Present the query to the user and explain it's ready for validation.
+    1. Write ONLY a SELECT query (NOT `CREATE TABLE`). The SELECT statement must produce data that matches the target schema.
+    2. Fully qualify all source table names using the provided dataset ID.
+    3. **Your output MUST be a single tool call** to the `append_to_state` tool to save the generated SELECT query into the 'sql_query' state key. Do not add any other text.
     
     **IMPORTANT:** Generate ONLY the SELECT statement. The CREATE TABLE will be handled separately during execution.
     """,
-    tools=[bigquery_toolset, append_to_state]
+    tools=[append_to_state],
+    before_model_callback=log_query_to_model,
 )
 
-# 5. SQL VALIDATION AGENT
+# 6. SQL VALIDATION AGENT
 sql_validation_agent = Agent(
     model='gemini-2.5-flash',
     name='sql_validation_agent',
     description='Validates the generated SQL query by executing a sample.',
-    instruction="""You are a Data Validation and Sampling Agent.
+    instruction="""You are a SQL Validation Agent. Your job is to perform an automated test of the generated SQL. You do NOT interact with the user.
 
-    **CONTEXT:** The SELECT query is in the 'sql_query' state key.
-
-    **YOUR TASK:** Test the query with a LIMIT to show sample data.
-
-    **STEPS:**
+**YOUR STEPS:**
     1. Get the sql_query from state.
     2. If it contains a semicolon at the end, remove it.
     3. Add " LIMIT 10" to the end.
-    4. Call execute_sql tool with this modified query to get sample data.
-    5. If execute_sql succeeds: Show the sample data and ask "Does this sample look correct? Reply 'yes' to proceed or provide feedback."
-    6. If execute_sql fails: Use `append_to_state` to save the error to 'sql_feedback', set 'sample_approved' to "refine", and tell the user.
-
-    **IMPORTANT:** Do NOT write Python code. Just use the tools.
-    """,
-    tools=[bigquery_toolset, append_to_state, exit_loop],
+    4. **You MUST call the `execute_sql` tool** from the `bigquery_toolset` with this modified query to get sample data.
+    5. **If the `execute_sql` tool call fails:** 
+        - Use `append_to_state` to save the error to 'sql_feedback'.
+        - Set 'sample_approved' to "refine".
+        - Announce that you are requesting a revision due to a SQL error.
+    6. **If the `execute_sql` tool call succeeds:** 
+        - Save the sample data to the 'sql_sample_data' state key.
+        - Set 'sample_approved' to `True`.
+        - Announce that the SQL validation has passed.
+        - Exit the loop using the `exit_loop` tool so the user can be prompted for final confirmation.
+""",
+    tools=[bigquery_toolset, append_to_state, exit_loop], # bigquery_toolset is essential here
+    before_model_callback=log_query_to_model,
+    after_model_callback=log_model_response
 )
 
-# 6. SAMPLE APPROVAL AGENT
-sample_approval_agent = Agent(
+# 7. SQL CONFIRMATION AGENT (USER-FACING)
+sql_confirmation_agent = Agent(
     model='gemini-2.5-flash',
-    name='sample_approval_agent',
-    description='Processes user approval for the data sample.',
-    instruction="""You are the Sample Approval Agent.
-    1. If the user approves, set 'sample_approved' to True.
-    2. If the user rejects or asks for changes, save feedback to 'sql_feedback' and set 'sample_approved' to "refine".
-    3. If the user says to stop, set 'sample_approved' to False.
-    4. Confirm your action with confidence score.
-    5. Once done, return the control to `root_agent`.
-    """, 
-    tools=[append_to_state],
+    name='sql_confirmation_agent',
+    description='Presents the SQL sample data to the user for final approval.',
+    instruction="""Present the sample data from the 'sql_sample_data' state to the user. Ask "Does this sample data look correct? Please reply with 'yes' to approve, or provide feedback for changes." """,
 )
 
-# 7. FINAL EXECUTION AGENT
+# 8. FINAL EXECUTION AGENT
 final_execution_agent = Agent(
     model='gemini-2.5-flash',
     name='final_execution_agent',
-    description='Executes the final ETL job asynchronously in BigQuery.',
+    description='Executes the final ETL job in BigQuery.',
     instruction="""
     You are the Final Execution Agent.
     
@@ -354,12 +369,14 @@ final_execution_agent = Agent(
     4. The tool will submit an async job and return a job ID.
     5. Announce to the user that the ETL pipeline has been initiated and is running in the background.
     6. Tell them they can check status anytime by asking "what's the status?"
-    7. Once done, return the control to `root_agent`.
+    7. **IMPORTANT:** nce done, return the control to `root_agent`.
     """,
     tools=[etl_tools_instance.create_etl_job, append_to_state],
+    before_model_callback=log_query_to_model,
+    after_model_callback=log_model_response
 )
 
-# 8. JOB STATUS AGENT
+# 9. JOB STATUS AGENT
 job_status_agent = Agent(
     model='gemini-2.5-flash',
     name='job_status_agent',
@@ -372,7 +389,27 @@ job_status_agent = Agent(
     3. The tool will return the current job status (RUNNING, SUCCESS, or FAILED).
     4. Report the status to the user in a friendly way.
     """,
-    tools=[etl_tools_instance.check_etl_status]
+    tools=[etl_tools_instance.check_etl_status],
+    before_model_callback=log_query_to_model,
+    after_model_callback=log_model_response
+)
+
+# --- LOOPS ---
+
+# A. PLAN REVISION LOOP
+plan_revision_loop = LoopAgent(
+    name="plan_revision_loop",
+    description="Iteratively creates and validates a plan until it is satisfactory or rejected.",
+    sub_agents=[transformation_planning_agent, plan_validation_agent],
+    max_iterations=2
+)
+
+# B. SQL REVISION LOOP
+sql_revision_loop = LoopAgent(
+    name="sql_revision_loop",
+    description="Iteratively creates and validates a SQL query until it is approved by the user.",
+    sub_agents=[sql_generation_agent, sql_validation_agent],
+    max_iterations=2,
 )
 
 # --- PIPELINES ---
@@ -380,11 +417,11 @@ job_status_agent = Agent(
 # A. PLANNING PIPELINE
 etl_planning_pipeline = SequentialAgent(
     name="etl_planning_pipeline",
-    description="A pipeline to discover tables and create a transformation plan.",
+    description="A pipeline to discover tables and then create and validate a transformation plan.",
     sub_agents=[
         table_discovery_agent,
-        transformation_planning_agent,
-        plan_confirmation_agent
+        plan_revision_loop,
+        plan_confirmation_agent,
     ],
 )
 
@@ -393,9 +430,8 @@ etl_execution_pipeline = SequentialAgent(
     name="etl_execution_pipeline",
     description="A pipeline to generate and validate the transformation SQL.",
     sub_agents=[
-        sql_generation_agent,
-        sql_validation_agent,
-        sample_approval_agent
+        sql_revision_loop,
+        sql_confirmation_agent
     ],
 )
 
@@ -416,35 +452,45 @@ root_agent = Agent(
             - Once you get reponse from the user proceed to next step 2.
 
     2. **SCHEMA CAPTURE:**
-        - If 'target_schema_requested' is True AND 'target_schema' is NOT set:
+        - If 'target_schema' is NOT set AND 'target_schema_requested' is True:
             - Call `set_initial_target_table_info` with the user's message.
             - After that proceed to step 3.
 
-    3. **PLANNING & APPROVAL/REVISION:**
-        - If 'plan_approved' is NOT True (not set or "revise"):
-            - If 'plan_approved' not set: Call `etl_planning_pipeline`.
-            - If 'plan_approved' is set to "revise" u repeat step 3.
-            - Once the plan is approved by user proceed to step 4.
+    3. **PLANNING & VALIDATION:**
+        - If 'target_schema' is set AND 'plan_approved' is NOT set:
+            - Call `etl_planning_pipeline`. This pipeline will handle the entire planning, validation, and revision loop.
+    
+    4. **PLAN REVISION (from user feedback):**
+        - If the user provides feedback on the plan (i.e., their response is not 'yes'):
+            - Save their feedback to the 'plan_feedback' state key.
+            - Set 'plan_approved' to "revise".
+            - Call `etl_planning_pipeline` again to incorporate the feedback.
 
-    4. **SQL GENERATION & SAMPLING:**
-        - If 'plan_approved' is True AND 'sample_approved' is NOT True (not set or "refine"):
-            - If `sample_approved` is not set: Call `etl_execution_pipeline` to generate/validate SQL and show sample.
-            - If `sample_approved` is set to "refine" u repeat step 4.
-            - Once the plan is approved by user proceed to step 5.
+    5. **SQL GENERATION & SAMPLING:**
+        - If 'plan_approved' is True AND 'sample_approved' is NOT set:
+            - Call `etl_execution_pipeline`. This will handle the entire SQL generation, validation, and revision loop.
 
-    5. **FINAL EXECUTION & STATUS:**
+    6. **SQL REVISION (from user feedback):**
+        - If the user provides feedback on the SQL sample (i.e., their response is not 'yes'):
+            - Save their feedback to the 'sql_feedback' state key.
+            - Set 'sample_approved' to "refine".
+            - Call `etl_execution_pipeline` again to incorporate the feedback.
+
+    7. **FINAL EXECUTION & STATUS:**
         - If 'plan_approved' is True AND 'sample_approved' is True:
             - If 'job_id' is NOT set: Call `final_execution_agent` to start the async job.
 
-    6. **EXECUTION STATUS CHECK:** 
+    8. **EXECUTION STATUS CHECK:** 
         - If 'job_id' is True:
             - If asked by user to check status, Call `job_status_agent` to get the status.
     """,
-    tools=[append_to_state, exit_loop, set_initial_target_table_info],
+    tools=[append_to_state, set_initial_target_table_info],
     sub_agents=[
         etl_planning_pipeline,
         etl_execution_pipeline,
         final_execution_agent,
         job_status_agent
-    ]
+    ],
+    before_model_callback=log_query_to_model,
+    after_model_callback=log_model_response
 )

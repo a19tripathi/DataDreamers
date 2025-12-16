@@ -1,8 +1,7 @@
 import logging
 
 from google.adk.agents.callback_context import CallbackContext
-from google.adk.models import LlmRequest
-from google.adk.models import LlmResponse
+from google.adk.models import LlmResponse, LlmRequest
 
 
 def log_query_to_model(callback_context: CallbackContext, llm_request: LlmRequest):
@@ -16,3 +15,5 @@ def log_model_response(callback_context: CallbackContext, llm_response: LlmRespo
         for part in llm_response.content.parts:
             if part.text:
                 logging.info("[response from %s]: %s", callback_context.agent_name, part.text)
+            elif part.function_call:
+                logging.info("[function call from %s]: %s", callback_context.agent_name, part.function_call.name)
